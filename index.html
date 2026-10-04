@@ -8,61 +8,61 @@
 
   <link rel="stylesheet" href="style.css" />
 
-  <!-- A-Frame, then MindAR (order matters) -->
+  <!-- A-Frame first, then MindAR (order matters) -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 </head>
 <body>
 
-  <!-- Start screen: camera permission requires a user tap on most phones -->
+  <!-- MindAR inserts the camera <video> into the PARENT of <a-scene>,
+       so the scene must live inside its own full-screen container. -->
+  <div id="ar-container">
+    <a-scene
+      id="ar-scene"
+      mindar-image="imageTargetSrc: assets/targets/peacock.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;"
+      color-space="sRGB"
+      renderer="colorManagement: true"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false">
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-light type="ambient" intensity="1"></a-light>
+      <a-light type="directional" position="1 2 3" intensity="0.8"></a-light>
+
+      <!-- Image target index 0 -->
+      <a-entity id="target" mindar-image-target="targetIndex: 0">
+
+        <!-- Translucent plane showing the poster footprint (1 unit wide).
+             For a non-square poster set height = image height / image width. -->
+        <a-plane width="1" height="1" position="0 0 0"
+                 material="color: #00e5ff; opacity: 0.25; transparent: true"></a-plane>
+
+        <!-- Simple spinning/bobbing placeholder -->
+        <a-entity position="0 0 0.2"
+                  animation="property: rotation; to: 0 360 0; dur: 5000; easing: linear; loop: true">
+          <a-box width="0.25" height="0.25" depth="0.25" color="#ff5a5f"
+                 animation="property: position; from: 0 0 0; to: 0 0.1 0; dur: 800; dir: alternate; easing: easeInOutSine; loop: true"></a-box>
+        </a-entity>
+      </a-entity>
+    </a-scene>
+  </div>
+
+  <!-- Start / error / "AR stopped" screen -->
   <div id="start-screen" class="overlay">
     <div class="card">
       <h1>AR Poster</h1>
-      <p>Tap the button, allow camera access, then point your phone at the printed poster.</p>
+      <p id="intro-msg">Tap the button, allow camera access, then point your phone at the printed poster.</p>
       <button id="start-btn" type="button">Start AR</button>
       <p id="error-msg" class="error" hidden></p>
     </div>
   </div>
 
-  <!-- Status pill shown while AR is running -->
-  <div id="status" class="status" hidden>Looking for the poster…</div>
+  <!-- Status overlay while AR is running -->
+  <div id="status" class="status" role="status" aria-live="polite" hidden>Looking for poster...</div>
 
-  <!-- AR scene. autoStart is false so the button controls startup. -->
-  <a-scene
-    mindar-image="imageTargetSrc: assets/targets/peacock.mind; autoStart: true; uiLoading: no; uiScanning: no; uiError: no;"
-    color-space="sRGB"
-    renderer="colorManagement: true; physicallyCorrectLights: true"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
-
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <!-- Image target index 0 (first image compiled into targets.mind) -->
-    <a-entity id="target" mindar-image-target="targetIndex: 0">
-
-      <!-- Wireframe outline matching the poster (width = 1 unit, height = 1 unit here).
-           Helps you check alignment. Remove later if you like. -->
-      <a-plane width="1" height="1" position="0 0 0" material="color: #00e5ff; opacity: 0.15; transparent: true"></a-plane>
-
-      <!-- Placeholder "bird": box body + sphere head, floating above the poster -->
-      <a-entity id="placeholder" position="0 0 0.3">
-
-        <!-- Spin the whole object -->
-        <a-entity animation="property: rotation; to: 0 360 0; dur: 6000; easing: linear; loop: true">
-
-          <!-- Bobbing up and down -->
-          <a-entity
-            animation="property: position; from: 0 0 0; to: 0 0.12 0; dur: 900; dir: alternate; easing: easeInOutSine; loop: true">
-
-            <a-box width="0.3" height="0.2" depth="0.4" color="#ff5a5f" position="0 0 0"></a-box>
-            <a-sphere radius="0.12" color="#ffd166" position="0 0.17 0.2"></a-sphere>
-            <a-cone radius-bottom="0.05" radius-top="0" height="0.12" color="#06d6a0"
-                    position="0 0.17 0.36" rotation="90 0 0"></a-cone>
-          </a-entity>
-        </a-entity>
-      </a-entity>
-    </a-entity>
-  </a-scene>
+  <!-- Exit button while AR is running -->
+  <button id="exit-btn" class="exit-btn" type="button" hidden>Exit AR</button>
 
   <script src="app.js"></script>
 </body>
