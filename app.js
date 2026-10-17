@@ -2,7 +2,7 @@
   "use strict";
 
   const TAG = "[AR]";
-  const TARGET_SRC = "assets/targets/peacock.mind";
+  const TARGET_SRC = "assets/target/peacock.mind";
   const VIDEO_TIMEOUT_MS = 12000;
   const SLOW_PERMISSION_HINT_MS = 6000;
 
